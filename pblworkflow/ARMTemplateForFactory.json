@@ -1,0 +1,907 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "pblworkflow"
+		},
+		"AzureDataLakeStorage1_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'AzureDataLakeStorage1'"
+		},
+		"AzureBlobStorage1_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureBlobStorage1'"
+		},
+		"linkedService1_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'linkedService1'"
+		},
+		"AzureDataLakeStorage1_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://pbldatalake.dfs.core.windows.net"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureDataLakeStorage1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('AzureDataLakeStorage1_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('AzureDataLakeStorage1_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureBlobStorage1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('AzureBlobStorage1_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflow1",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"SA": {},
+									"LI": {},
+									"IR": {},
+									"EV": {},
+									"sink1": {}
+								}
+							},
+							"staging": {
+								"folderPath": "pblblob"
+							},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dataflow1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/01_Subject_attributes')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "01_Subject_attributes.csv",
+						"container": "pblblob"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "'No'",
+						"type": "String"
+					},
+					{
+						"name": "'SubjectID'",
+						"type": "String"
+					},
+					{
+						"name": " 'Housing complex'",
+						"type": "String"
+					},
+					{
+						"name": " 'Gender'",
+						"type": "String"
+					},
+					{
+						"name": " 'Birthday'",
+						"type": "String"
+					},
+					{
+						"name": " 'Age'",
+						"type": "String"
+					},
+					{
+						"name": " 'certification of care need'",
+						"type": "String"
+					},
+					{
+						"name": " 'Number of residents'",
+						"type": "String"
+					},
+					{
+						"name": " 'Height'",
+						"type": "String"
+					},
+					{
+						"name": " 'Body weight'",
+						"type": "String"
+					},
+					{
+						"name": " 'Stride（cm)'",
+						"type": "String"
+					},
+					{
+						"name": " 'Medical history'",
+						"type": "String"
+					},
+					{
+						"name": " 'Disease name'",
+						"type": "String"
+					},
+					{
+						"name": " 'Regular hospital consultation'",
+						"type": "String"
+					},
+					{
+						"name": " 'Antihypertensive'",
+						"type": "String"
+					},
+					{
+						"name": " 'Other1'",
+						"type": "String"
+					},
+					{
+						"name": " 'Smoking'",
+						"type": "String"
+					},
+					{
+						"name": " 'Drinking'",
+						"type": "String"
+					},
+					{
+						"name": " 'Family composition of living together'",
+						"type": "String"
+					},
+					{
+						"name": "  'Care need certification time'",
+						"type": "String"
+					},
+					{
+						"name": " 'Hobby・preference・habit'",
+						"type": "String"
+					},
+					{
+						"name": "  'Activities'",
+						"type": "String"
+					},
+					{
+						"name": " 'Community'",
+						"type": "String"
+					},
+					{
+						"name": " 'Everyday'",
+						"type": "String"
+					},
+					{
+						"name": " 'Everyday With or without blood pressure measurement'",
+						"type": "String"
+					},
+					{
+						"name": " 'Whether or not to use a pedometer on a daily basis'",
+						"type": "String"
+					},
+					{
+						"name": " 'Other2'",
+						"type": "String"
+					},
+					{
+						"name": " 'right Measured value'",
+						"type": "String"
+					},
+					{
+						"name": " 'right Evaluation'",
+						"type": "String"
+					},
+					{
+						"name": " 'right Presence or absence of abnormality'",
+						"type": "String"
+					},
+					{
+						"name": " 'left easured value'",
+						"type": "String"
+					},
+					{
+						"name": " 'left Evaluation'",
+						"type": "String"
+					},
+					{
+						"name": " 'left Presence or absence of abnormality'",
+						"type": "String"
+					},
+					{
+						"name": " 'Locomotive Measured value'",
+						"type": "String"
+					},
+					{
+						"name": " 'Locomotive Presence or absence of abnormality'                ",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/02_Life_independence')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "02_Life_independence.csv",
+						"container": "pblblob"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "'No'",
+						"type": "String"
+					},
+					{
+						"name": "'SubjectID'",
+						"type": "String"
+					},
+					{
+						"name": " 'Date confirmed'",
+						"type": "String"
+					},
+					{
+						"name": " 'Appetite Questionnaire results'",
+						"type": "String"
+					},
+					{
+						"name": "'Eating habit Questionnaire results'",
+						"type": "String"
+					},
+					{
+						"name": " 'Preference Questionnaire results'",
+						"type": "String"
+					},
+					{
+						"name": " 'Sleep Questionnaire results'",
+						"type": "String"
+					},
+					{
+						"name": "'Anxiety about health Questionnaire results'",
+						"type": "String"
+					},
+					{
+						"name": " 'Anxiety about forgetfulness Questionnaire results'",
+						"type": "String"
+					},
+					{
+						"name": " 'I can go up and down stairs without being transmitted to the railing or wall'",
+						"type": "String"
+					},
+					{
+						"name": " 'I can get up from the chair'",
+						"type": "String"
+					},
+					{
+						"name": " 'I can walk for more than 15 minutes'",
+						"type": "String"
+					},
+					{
+						"name": " 'I can walk without a cane'",
+						"type": "String"
+					},
+					{
+						"name": " 'I am actively going out'",
+						"type": "String"
+					},
+					{
+						"name": " 'Walking function Score'",
+						"type": "String"
+					},
+					{
+						"name": " 'Walking function Evaluation'",
+						"type": "String"
+					},
+					{
+						"name": " 'Do the cleaning and washing yourself'",
+						"type": "String"
+					},
+					{
+						"name": " 'Shop for daily necessities yourself'",
+						"type": "String"
+					},
+					{
+						"name": "'I can prepare your own meals'",
+						"type": "String"
+					},
+					{
+						"name": " 'I can write the documents to be submitted to the government office by myself'",
+						"type": "String"
+					},
+					{
+						"name": " '自分で電話帳を調べ、電話をかけることができる'",
+						"type": "String"
+					},
+					{
+						"name": " '生活機能 Score'",
+						"type": "String"
+					},
+					{
+						"name": " '生活機能 Evaluation'",
+						"type": "String"
+					},
+					{
+						"name": " 'I have a counselor in case of trouble'",
+						"type": "String"
+					},
+					{
+						"name": " \"I have a counselor when I'm sick\"",
+						"type": "String"
+					},
+					{
+						"name": " \"I have someone who will take me to the hospital when I'm sick\"",
+						"type": "String"
+					},
+					{
+						"name": " 'There are people who take care of me when I fall asleep'",
+						"type": "String"
+					},
+					{
+						"name": " 'Relying on someone'",
+						"type": "String"
+					},
+					{
+						"name": " 'ソーシャルサポート Score'",
+						"type": "String"
+					},
+					{
+						"name": " 'ソーシャルサポート Evaluation'",
+						"type": "String"
+					},
+					{
+						"name": " 'No weight loss of more than 2-3 kg in the last 6 months'",
+						"type": "String"
+					},
+					{
+						"name": " 'No weight gain of more than 2-3 kg in the last 2 months'",
+						"type": "String"
+					},
+					{
+						"name": " 'I can eat hard food'",
+						"type": "String"
+					},
+					{
+						"name": "When I drink tea or soup, I don't get sick",
+						"type": "String"
+					},
+					{
+						"name": "I don't mind thirst",
+						"type": "String"
+					},
+					{
+						"name": " '口腔・栄養 Score'",
+						"type": "String"
+					},
+					{
+						"name": " '口腔・栄養 Evaluation'",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow1')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "01_Subject_attributes",
+								"type": "DatasetReference"
+							},
+							"name": "SA"
+						},
+						{
+							"dataset": {
+								"referenceName": "02_Life_independence",
+								"type": "DatasetReference"
+							},
+							"name": "LI"
+						},
+						{
+							"dataset": {
+								"referenceName": "04_Inspection_results",
+								"type": "DatasetReference"
+							},
+							"name": "IR"
+						},
+						{
+							"dataset": {
+								"referenceName": "05_evaluation",
+								"type": "DatasetReference"
+							},
+							"name": "EV"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "output",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "Join1"
+						},
+						{
+							"name": "LISelected1"
+						},
+						{
+							"name": "EVSelected1"
+						}
+					],
+					"script": "source(output(\n\t\t{'No'} as string,\n\t\t{'SubjectID'} as string,\n\t\t{ 'Housing complex'} as string,\n\t\t{ 'Gender'} as string,\n\t\t{ 'Birthday'} as string,\n\t\t{ 'Age'} as string,\n\t\t{ 'certification of care need'} as string,\n\t\t{ 'Number of residents'} as string,\n\t\t{ 'Height'} as string,\n\t\t{ 'Body weight'} as string,\n\t\t{ 'Stride（cm)'} as string,\n\t\t{ 'Medical history'} as string,\n\t\t{ 'Disease name'} as string,\n\t\t{ 'Regular hospital consultation'} as string,\n\t\t{ 'Antihypertensive'} as string,\n\t\t{ 'Other1'} as string,\n\t\t{ 'Smoking'} as string,\n\t\t{ 'Drinking'} as string,\n\t\t{ 'Family composition of living together'} as string,\n\t\t{  'Care need certification time'} as string,\n\t\t{ 'Hobby・preference・habit'} as string,\n\t\t{  'Activities'} as string,\n\t\t{ 'Community'} as string,\n\t\t{ 'Everyday'} as string,\n\t\t{ 'Everyday With or without blood pressure measurement'} as string,\n\t\t{ 'Whether or not to use a pedometer on a daily basis'} as string,\n\t\t{ 'Other2'} as string,\n\t\t{ 'right Measured value'} as string,\n\t\t{ 'right Evaluation'} as string,\n\t\t{ 'right Presence or absence of abnormality'} as string,\n\t\t{ 'left easured value'} as string,\n\t\t{ 'left Evaluation'} as string,\n\t\t{ 'left Presence or absence of abnormality'} as string,\n\t\t{ 'Locomotive Measured value'} as string,\n\t\t{ 'Locomotive Presence or absence of abnormality'                } as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> SA\nsource(output(\n\t\t{'No'} as string,\n\t\t{'SubjectID'} as string,\n\t\t{ 'Date confirmed'} as string,\n\t\t{ 'Appetite Questionnaire results'} as string,\n\t\t{'Eating habit Questionnaire results'} as string,\n\t\t{ 'Preference Questionnaire results'} as string,\n\t\t{ 'Sleep Questionnaire results'} as string,\n\t\t{'Anxiety about health Questionnaire results'} as string,\n\t\t{ 'Anxiety about forgetfulness Questionnaire results'} as string,\n\t\t{ 'I can go up and down stairs without being transmitted to the railing or wall'} as string,\n\t\t{ 'I can get up from the chair'} as string,\n\t\t{ 'I can walk for more than 15 minutes'} as string,\n\t\t{ 'I can walk without a cane'} as string,\n\t\t{ 'I am actively going out'} as string,\n\t\t{ 'Walking function Score'} as string,\n\t\t{ 'Walking function Evaluation'} as string,\n\t\t{ 'Do the cleaning and washing yourself'} as string,\n\t\t{ 'Shop for daily necessities yourself'} as string,\n\t\t{'I can prepare your own meals'} as string,\n\t\t{ 'I can write the documents to be submitted to the government office by myself'} as string,\n\t\t{ '自分で電話帳を調べ、電話をかけることができる'} as string,\n\t\t{ '生活機能 Score'} as string,\n\t\t{ '生活機能 Evaluation'} as string,\n\t\t{ 'I have a counselor in case of trouble'} as string,\n\t\t{ \"I have a counselor when I'm sick\"} as string,\n\t\t{ \"I have someone who will take me to the hospital when I'm sick\"} as string,\n\t\t{ 'There are people who take care of me when I fall asleep'} as string,\n\t\t{ 'Relying on someone'} as string,\n\t\t{ 'ソーシャルサポート Score'} as string,\n\t\t{ 'ソーシャルサポート Evaluation'} as string,\n\t\t{ 'No weight loss of more than 2-3 kg in the last 6 months'} as string,\n\t\t{ 'No weight gain of more than 2-3 kg in the last 2 months'} as string,\n\t\t{ 'I can eat hard food'} as string,\n\t\t{When I drink tea or soup, I don't get sick} as string,\n\t\t{I don't mind thirst} as string,\n\t\t{ '口腔・栄養 Score'} as string,\n\t\t{ '口腔・栄養 Evaluation'} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> LI\nsource(output(\n\t\t{'No'} as string,\n\t\t{ 'SubjectID'} as string,\n\t\t{ 'Presence or absence of inspection record'} as string,\n\t\t{ 'Inspection date'} as string,\n\t\t{ 'Total cholesterol'} as string,\n\t\t{ 'LDL cholesterol'} as string,\n\t\t{ 'HDL cholesterol'} as string,\n\t\t{ 'Urea nitrogen'} as string,\n\t\t{ 'Creatinine'} as string,\n\t\t{ 'Uric acid'} as string,\n\t\t{ 'Urine protein'} as string,\n\t\t{ 'Blood sugar'} as string,\n\t\t{ 'Diabetes diagnosis age'} as string,\n\t\t{ 'HbA1c'} as string,\n\t\t{ 'AST'} as string,\n\t\t{ 'ALT'} as string,\n\t\t{ 'LDH'} as string,\n\t\t{ 'Retinopathy'} as string,\n\t\t{ 'Hypertension diagnosis age sodium'} as string,\n\t\t{ 'Na'} as string,\n\t\t{ 'K'} as string,\n\t\t{ 'ECG abnormalities'} as string,\n\t\t{ 'Triglyceride'} as string,\n\t\t{ 'Diagnosis age of dyslipidemia'} as string,\n\t\t{ 'History of coronary artery disease'} as string,\n\t\t{ 'Chronic kidney disease diagnosis age'} as string,\n\t\t{ 'Total protein'} as string,\n\t\t{ 'Albumin'} as string,\n\t\t{ 'Hematuria'} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> IR\nsource(output(\n\t\t{'No'} as string,\n\t\t{'SubjectID'} as string,\n\t\t{ 'Evaluation contents'} as string,\n\t\t{ 'Health status'} as string,\n\t\t{ 'Biological function'} as string,\n\t\t{ 'Exercise function'} as string,\n\t\t{ 'Nutrition'} as string,\n\t\t{ 'Cognitive function'} as string,\n\t\t{ 'Fall'} as string,\n\t\t{ 'High blood pressure'} as string,\n\t\t{ 'Arrhythmia'} as string,\n\t\t{ 'Osteoporosis'} as string,\n\t\t{ 'Diabetes mellitus'} as string,\n\t\t{ 'Exercise guidance'} as string,\n\t\t{ 'Nutrition guidance'} as string,\n\t\t{'Life guidance'} as string\n\t),\n\tallowSchemaDrift: false,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> EV\nLISelected1, EVSelected1 join(LISelected1@{'SubjectID'} == EVSelected1@{'SubjectID'},\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> Join1\nLI select(mapColumn(\n\t\t{'SubjectID'},\n\t\t{ 'Appetite Questionnaire results'},\n\t\t{'Eating habit Questionnaire results'},\n\t\t{ 'Preference Questionnaire results'},\n\t\t{ 'Sleep Questionnaire results'},\n\t\t{'Anxiety about health Questionnaire results'},\n\t\t{ 'I can go up and down stairs without being transmitted to the railing or wall'},\n\t\t{ 'I can walk for more than 15 minutes'},\n\t\t{ 'I am actively going out'},\n\t\t{ 'Do the cleaning and washing yourself'},\n\t\t{ 'Shop for daily necessities yourself'},\n\t\t{ 'No weight loss of more than 2-3 kg in the last 6 months'},\n\t\t{ 'No weight gain of more than 2-3 kg in the last 2 months'}\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> LISelected1\nEV select(mapColumn(\n\t\t{'SubjectID'},\n\t\t{ 'Exercise function'},\n\t\t{ 'Nutrition'}\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> EVSelected1\nJoin1 sink(input(\n\t\tColumn_1 as string,\n\t\tColumn_2 as string,\n\t\tColumn_3 as string,\n\t\tColumn_4 as string,\n\t\tColumn_5 as string,\n\t\tColumn_6 as string,\n\t\tColumn_7 as string,\n\t\tColumn_8 as string,\n\t\tColumn_9 as string,\n\t\tColumn_10 as string,\n\t\tColumn_11 as string,\n\t\tColumn_12 as string,\n\t\tColumn_13 as string,\n\t\tColumn_14 as string,\n\t\tColumn_15 as string,\n\t\tColumn_16 as string,\n\t\tColumn_17 as string,\n\t\tColumn_18 as string,\n\t\tColumn_19 as string,\n\t\tColumn_20 as string,\n\t\tColumn_21 as string,\n\t\tColumn_22 as string,\n\t\tColumn_23 as string,\n\t\tColumn_24 as string,\n\t\tColumn_25 as string,\n\t\tColumn_26 as string,\n\t\tColumn_27 as string,\n\t\tColumn_28 as string,\n\t\tColumn_29 as string,\n\t\tColumn_30 as string,\n\t\tColumn_31 as string,\n\t\tColumn_32 as string,\n\t\tColumn_33 as string,\n\t\tColumn_34 as string,\n\t\tColumn_35 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sink1"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/01_Subject_attributes')]",
+				"[concat(variables('factoryId'), '/datasets/02_Life_independence')]",
+				"[concat(variables('factoryId'), '/datasets/04_Inspection_results')]",
+				"[concat(variables('factoryId'), '/datasets/05_evaluation')]",
+				"[concat(variables('factoryId'), '/datasets/output')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/04_Inspection_results')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "04_Inspection results.csv",
+						"container": "pblblob"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "'No'",
+						"type": "String"
+					},
+					{
+						"name": " 'SubjectID'",
+						"type": "String"
+					},
+					{
+						"name": " 'Presence or absence of inspection record'",
+						"type": "String"
+					},
+					{
+						"name": " 'Inspection date'",
+						"type": "String"
+					},
+					{
+						"name": " 'Total cholesterol'",
+						"type": "String"
+					},
+					{
+						"name": " 'LDL cholesterol'",
+						"type": "String"
+					},
+					{
+						"name": " 'HDL cholesterol'",
+						"type": "String"
+					},
+					{
+						"name": " 'Urea nitrogen'",
+						"type": "String"
+					},
+					{
+						"name": " 'Creatinine'",
+						"type": "String"
+					},
+					{
+						"name": " 'Uric acid'",
+						"type": "String"
+					},
+					{
+						"name": " 'Urine protein'",
+						"type": "String"
+					},
+					{
+						"name": " 'Blood sugar'",
+						"type": "String"
+					},
+					{
+						"name": " 'Diabetes diagnosis age'",
+						"type": "String"
+					},
+					{
+						"name": " 'HbA1c'",
+						"type": "String"
+					},
+					{
+						"name": " 'AST'",
+						"type": "String"
+					},
+					{
+						"name": " 'ALT'",
+						"type": "String"
+					},
+					{
+						"name": " 'LDH'",
+						"type": "String"
+					},
+					{
+						"name": " 'Retinopathy'",
+						"type": "String"
+					},
+					{
+						"name": " 'Hypertension diagnosis age sodium'",
+						"type": "String"
+					},
+					{
+						"name": " 'Na'",
+						"type": "String"
+					},
+					{
+						"name": " 'K'",
+						"type": "String"
+					},
+					{
+						"name": " 'ECG abnormalities'",
+						"type": "String"
+					},
+					{
+						"name": " 'Triglyceride'",
+						"type": "String"
+					},
+					{
+						"name": " 'Diagnosis age of dyslipidemia'",
+						"type": "String"
+					},
+					{
+						"name": " 'History of coronary artery disease'",
+						"type": "String"
+					},
+					{
+						"name": " 'Chronic kidney disease diagnosis age'",
+						"type": "String"
+					},
+					{
+						"name": " 'Total protein'",
+						"type": "String"
+					},
+					{
+						"name": " 'Albumin'",
+						"type": "String"
+					},
+					{
+						"name": " 'Hematuria'",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/05_evaluation')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "05_evaluation.csv",
+						"container": "pblblob"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "'No'",
+						"type": "String"
+					},
+					{
+						"name": "'SubjectID'",
+						"type": "String"
+					},
+					{
+						"name": " 'Evaluation contents'",
+						"type": "String"
+					},
+					{
+						"name": " 'Health status'",
+						"type": "String"
+					},
+					{
+						"name": " 'Biological function'",
+						"type": "String"
+					},
+					{
+						"name": " 'Exercise function'",
+						"type": "String"
+					},
+					{
+						"name": " 'Nutrition'",
+						"type": "String"
+					},
+					{
+						"name": " 'Cognitive function'",
+						"type": "String"
+					},
+					{
+						"name": " 'Fall'",
+						"type": "String"
+					},
+					{
+						"name": " 'High blood pressure'",
+						"type": "String"
+					},
+					{
+						"name": " 'Arrhythmia'",
+						"type": "String"
+					},
+					{
+						"name": " 'Osteoporosis'",
+						"type": "String"
+					},
+					{
+						"name": " 'Diabetes mellitus'",
+						"type": "String"
+					},
+					{
+						"name": " 'Exercise guidance'",
+						"type": "String"
+					},
+					{
+						"name": " 'Nutrition guidance'",
+						"type": "String"
+					},
+					{
+						"name": "'Life guidance'",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/linkedService1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('linkedService1_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/output')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"container": "pblblob"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
+			]
+		}
+	]
+}
